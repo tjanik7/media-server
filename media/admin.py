@@ -1,3 +1,9 @@
 from django.contrib import admin
 
-# Register your models here.
+from media.models import ImageHash
+
+
+class ImageHashAdmin(admin.ModelAdmin):
+    pass
+
+admin.site.register(ImageHash, ImageHashAdmin)
