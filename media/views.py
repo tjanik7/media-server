@@ -16,13 +16,30 @@ def hash_image_from_bytes(file_bytes):
     return img_hash.hexdigest()
 
 
-class FirstView(APIView):
+class TestView(APIView): # media/test-post
+    def post(self, request):
+        print(request.data)
+
+        testKey = request.data['testKey']
+        # keyParam = request.query_params['testKey']
+
+        # print(f'param is {keyParam}')
+        print(f'testKey is {testKey}')
+
+        return Response({
+            'testKey': 'Appears to be working'
+        })
+
+
+class FirstView(APIView): # media/hi
     def get(self, request):
 
         print(request)
         # print(request.query_params['sampleKey'])
 
-        return Response("hi there; that worked")
+        return Response({
+            'testKey': 'looks like that worked!'
+        })
 
 
     def post(self, request):
@@ -33,10 +50,15 @@ class FirstView(APIView):
             'existing': 0
         }
 
+        print(f"Request data is {request.data}")
+
         for filename in request.data:
             img = request.data.get(filename)
 
             file_bytes = img.file.read()
+
+            print(f'Got {len(file_bytes)} bytes from the file')
+
             dig = hash_image_from_bytes(file_bytes)
 
             # Cannot specify filename here, since we only want to query on img_hash field
@@ -45,6 +67,8 @@ class FirstView(APIView):
             )  # Save occurs automatically with 'get_or_create"
 
             base_filename = os.path.basename(filename)
+
+            print(f'filename is "{filename}"')
 
             if created:
                 # Update filename field on newly created object and save again
@@ -61,7 +85,9 @@ class FirstView(APIView):
             else:
                 counts['existing'] += 1
 
+        resp_str = f'{counts["created"]} written; {counts["existing"]} existing files ignored'
+        print(resp_str)
 
         return Response(
-            f'{counts["created"]} written; {counts["existing"]} existing files ignored'
+            resp_str
         )
