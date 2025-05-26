@@ -6,6 +6,10 @@ from media.models import ImageHash
 import hashlib
 
 
+def get_file_extension(filename):
+    return '.' + filename.split('.')[-1]
+
+
 def hash_image_from_bytes(file_bytes):
     # file_bytes: bytes
     # returns str
@@ -23,7 +27,6 @@ class TestView(APIView): # media/test-post
         testKey = request.data['testKey']
         # keyParam = request.query_params['testKey']
 
-        # print(f'param is {keyParam}')
         print(f'testKey is {testKey}')
 
         return Response({
@@ -52,12 +55,16 @@ class FirstView(APIView): # media/hi
 
         print(f"Request data is {request.data}")
 
-        for filename in request.data:
-            img = request.data.get(filename)
+        for paramName in request.data:
+            print('\n--- Processing new file ---\n')
+            img = request.data.get(paramName)
+
+            print(f'img has type {type(img)}')
 
             file_bytes = img.file.read()
+            filename = img.name
 
-            print(f'Got {len(file_bytes)} bytes from the file')
+            print(f'Got {len(file_bytes)} {type(file_bytes)} from the file')
 
             dig = hash_image_from_bytes(file_bytes)
 
@@ -66,24 +73,36 @@ class FirstView(APIView): # media/hi
                 img_hash=dig
             )  # Save occurs automatically with 'get_or_create"
 
-            base_filename = os.path.basename(filename)
+            base_filename = os.path.basename(filename)  # TODO: switch to using ID as filename now
 
-            print(f'filename is "{filename}"')
+            print(f'paramName is "{paramName}" and filename is "{filename}"')
+
+            file_extension = get_file_extension(filename)
+            print(f'file extension is "{file_extension}"')
 
             if created:
                 # Update filename field on newly created object and save again
-                img_hash.filename = base_filename
-                img_hash.save()
+
+                # Skipping this since we prob don't care about keeping a randomly generated filename around
+                # img_hash.filename = base_filename
+                # img_hash.save()
 
                 counts['created'] += 1
 
                 # TODO: potentially switch to using hash as name, since it must be unique
                 # would need to write it with file extension as well
-                with open(os.path.join(base_path, base_filename), 'wb') as f:
+
+                abs_file_path = os.path.join(base_path, dig + file_extension)
+
+                print(f'absolute dest file path is {abs_file_path}')
+
+                with open(abs_file_path, 'wb') as f:
                     f.write(file_bytes)
 
             else:
                 counts['existing'] += 1
+
+            print()
 
         resp_str = f'{counts["created"]} written; {counts["existing"]} existing files ignored'
         print(resp_str)
