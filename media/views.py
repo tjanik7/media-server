@@ -46,7 +46,7 @@ class FirstView(APIView): # media/hi
 
 
     def post(self, request):
-        base_path = '/Users/tyjanik/devel/media_server/script_sandbox/files_written'
+        base_path = '/Users/tyjanik/devel/media_server/backed_up_files'
 
         counts = {
             'created': 0,
@@ -89,7 +89,6 @@ class FirstView(APIView): # media/hi
 
                 counts['created'] += 1
 
-                # TODO: potentially switch to using hash as name, since it must be unique
                 # would need to write it with file extension as well
 
                 abs_file_path = os.path.join(base_path, dig + file_extension)
