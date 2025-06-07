@@ -1,5 +1,8 @@
 .DS_Store
 db.sqlite3
 .idea
+
+*.jpg
 *.png
+
 __pycache__/
