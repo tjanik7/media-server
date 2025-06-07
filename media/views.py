@@ -34,7 +34,7 @@ class TestView(APIView): # media/test-post
         })
 
 
-class FirstView(APIView): # media/hi
+class PhotoBackupView(APIView): # media/hi
     def get(self, request):
 
         print(request)
